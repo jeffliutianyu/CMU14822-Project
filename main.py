@@ -71,9 +71,9 @@ fg = 'blue', font = "Helvetica 14 bold italic").place(x= 5,y = 250) #Label
 fg = 'blue', font = "Helvetica 14 bold italic").place(x= 5,y = 370) #Label 
 
         #Recover Button
-        rbutton = Button(self,text='Start Recovering',command=self.recover)
+        rbutton = Button(self,text='Start Recovering',command=self.recover,font = "Helvetica 14 bold italic")
         rbutton.config(width = 15)
-        rbutton.place(rely=1.0, relx=1.0, x=0, y=0, anchor=SE)  
+        rbutton.place(rely=1.0, relx=1.0, x=-10, y=-15, anchor=SE)  
 
 
     #############################Event Handlers###################################
@@ -102,7 +102,7 @@ fg = 'blue', font = "Helvetica 14 bold italic").place(x= 5,y = 370) #Label
             print("Error: unable to find input disk image")
         if len(self.output_path) == 0:
             print("Error: unable to locate output directory")
-            
+
     	scalpel_commands = "scalpel -c " + self.conf_path + " " + self.input_path + " -o " + self.output_path
         print(scalpel_commands)
 
