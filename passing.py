@@ -1,5 +1,6 @@
 from pwn import *
 import time
+import string
 
 class Passing:
 
@@ -46,6 +47,7 @@ class Passing:
 		# MD5 list of all carved files
 		self.md5list = {}
 
+	# Main function to execute and parse result
 	def execute(self):
 		if "scalpel" not in self.cmd:
 			self.status = -1
@@ -53,56 +55,87 @@ class Passing:
 		else:
 			p = process(self.cmd, shell=True)
 			process_checker = 1
-			# print(p.poll(True))
-			# print p.recvall()
+			counter = 0
+			front = p.recvlines(5)
+			# print front
+			# Assign version and author information
+			for line in front:
+				if "Scalpel version" in line:
+					self.version = line.split(" ")[2].strip()
+				if "Golden G. Richard III" in line:
+					self.authorInfo = line
+
+			if "ERROR:" in front[2]:
+				for line in front[2:]:
+					self.error_info += line + "\n"
+				self.status = 1
+				return
+			# Assign images to be processed
+			else:
+				self.status = 0
+				for line in front:
+					if "Opening target" in line:
+						# print "target: " + result.split(" ")[2].strip('"')
+						self.target = line.split(" ")[2].strip('"')
+					else:
+						continue
+
 			while p.can_recv():
 				result = ""
-				pwnlib.tubes.newline = '\r'
 				try:
 					result = p.recvuntil('\r')
-					if "Scalpel Version" in result:
-						self.version = result.split(" ")[2].strip()
-					elif "Golden G. Richard III" in result:
-						self.authorInfo = result
-					elif "Opening target" in result:
-						self.target = result.split('"')[1].strip()
-					elif "ETA" in result:
-						percentage = float(result.split(" ")[2].strip('%'))
-						byte = float(result.split(" ")[5].strip())
+					if "ETA" in result and "Allocating work queues" not in result and "Processing of image" not in result:
+						percentage = float(result.split(":")[1].split("%")[0].strip())
+						byte = float(result.split(":")[1].split("%")[1].split("MB")[0].strip())
 						if process_checker == 1:
 							self.allocating_queue[0] = percentage
 							self.allocating_queue[1] = byte
-							if percentage == 100.0:
-								process_checker == 2
 						else:
-							self.image_processing = percentage
-							self.image_processing = byte
-					elif "header" in result and "footer" in result:
-						temp = []
-						temp.append(result.split(" ")[0].strip())
-						temp.append(result.split(" ")[3].strip('"'))
-						temp.append(result.split(" ")[6].strip('"'))
-						temp.append(result.split(" ")[8].strip())
-						self.carving_list.append(temp)
-					elif "Scalpel is done," in result:
-						self.num_file_carving = int(result.split(" ")[6].strip(','))
-						self.time_consumed = int(result.split(" ")[9].strip())
+							self.image_processing[0] = percentage
+							self.image_processing[1] = byte
+							if percentage > 97:
+								break
+					elif "Allocating work queues" in result:
+						percentage = float(result.splitlines()[0].split(":")[1].split("%")[0].strip())
+						byte = float(result.splitlines()[0].split(":")[1].split("%")[1].split("MB")[0].strip())
+						if process_checker == 1:
+							self.allocating_queue[0] = percentage
+							self.allocating_queue[1] = byte
+							process_checker = 2
+
+						for line in result.splitlines()[1:]:
+							if "header" in line and "footer" in line:
+								temp = []
+								temp.append(line.split(" ")[0].strip())
+								temp.append(line.split(" ")[3].strip('"'))
+								temp.append(line.split(" ")[6].strip('"'))
+								temp.append(line.split(" ")[8].strip())
+								self.carving_list.append(temp)
 					else:
-						if "ERROR:" in result:
-							self.error_info += result
-							self.error_info += p.recvall()
-							break
+						continue
 
 				except EOFError:
 					break
+			# Handle the rest of parsing info
+			end = p.recvall()
+			for line in end.splitlines():
+				if "Processing of image" in line:
+					self.image_processing[0] = float(line.split(":")[1].split("%")[0].strip())
+					self.image_processing[1] = float(line.split(":")[1].split("%")[1].split("MB")[0].strip())
+				elif "Scalpel is done," in line:
+					self.num_file_carving = int(line.split(" ")[6].strip(','))
+					self.time_consumed = int(line.split(" ")[9].strip())
+				else:
+					continue
+				print line
+				print counter
+				counter +=1
 
-			# print(p.poll(True))
+
 
 
 # a = Passing("scalpel -c jpg.conf practice1.dd -o out")
 # a.execute()
-
-
 
 if __name__ == '__main__':
     print ("Please don't call this file directly.")
