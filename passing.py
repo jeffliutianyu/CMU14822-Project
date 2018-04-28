@@ -1,6 +1,8 @@
 from pwn import *
 import time
 import string
+import os
+import fnmatch
 
 class Passing:
 
@@ -55,9 +57,9 @@ class Passing:
 		else:
 			p = process(self.cmd, shell=True)
 			process_checker = 1
-			counter = 0
 			front = p.recvlines(5)
-			# print front
+			path = ""
+
 			# Assign version and author information
 			for line in front:
 				if "Scalpel version" in line:
@@ -127,12 +129,29 @@ class Passing:
 					self.time_consumed = int(line.split(" ")[9].strip())
 				else:
 					continue
-				print line
-				print counter
-				counter +=1
 
+			if self.status == 0:
+				parameter = self.cmd.split(" ")
+				for i in range(0,len(parameter)):
+					if parameter[i] == "-o":
+						path = parameter[i+1]
+						break
+				# print path
+				for root, dirs, files in os.walk(path):
+					for file in files:
+						if file == "audit.txt":
+							continue
+						else:
+							filename = os.path.join(root, file)
+							self.md5list[filename] = self.md5(filename)
 
-
+	def md5(self, fname):
+	    hash_md5 = hashlib.md5()
+	    with open(fname, "rb") as f:
+	        for chunk in iter(lambda: f.read(4096), b""):
+	            hash_md5.update(chunk)
+	    f.close()
+	    return hash_md5.hexdigest()
 
 # a = Passing("scalpel -c jpg.conf practice1.dd -o out")
 # a.execute()
