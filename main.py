@@ -417,7 +417,7 @@ font = "Helvetica 14 bold italic")
                     result = p.recvuntil('\r')
                     if "ETA" in result and "Allocating work queues" not in result and "Processing of image" not in result:
                         percentage = float(result.split(":")[1].split("%")[0].strip())
-                        byte = float(result.split(":")[1].split("%")[1].split("MB")[0].strip())
+                        byte = float(result.split(":")[1].split("%")[1].strip().split(" ")[0])
                         if process_checker == 1:
                             self.allocating_queue[0] = percentage
                             self.allocating_queue[1] = byte
@@ -432,7 +432,7 @@ font = "Helvetica 14 bold italic")
                                 break
                     elif "Allocating work queues" in result:
                         percentage = float(result.splitlines()[0].split(":")[1].split("%")[0].strip())
-                        byte = float(result.splitlines()[0].split(":")[1].split("%")[1].split("MB")[0].strip())
+                        byte = float(result.split(":")[1].split("%")[1].strip().split(" ")[0])
                         if process_checker == 1:
                             self.allocating_queue[0] = percentage
                             self.allocating_queue[1] = byte
@@ -458,7 +458,7 @@ font = "Helvetica 14 bold italic")
             for line in end.splitlines():
                 if "Processing of image" in line:
                     self.image_processing[0] = float(line.split(":")[1].split("%")[0].strip())
-                    self.image_processing[1] = float(line.split(":")[1].split("%")[1].split("MB")[0].strip())
+                    self.image_processing[1] = float(line.split(":")[1].split("%")[1].strip().split(" ")[0])
                 elif "Scalpel is done," in line:
                     self.num_file_carving = int(line.split(" ")[6].strip(','))
                     self.time_consumed = int(line.split(" ")[9].strip())
