@@ -73,7 +73,7 @@ class simpleform_ap(Tk):
         #text box for commands
         self.entry_text = StringVar()
         self.commands_to_execute = ""
-        self.t = SimpleTable(self, 16, 2)
+        self.t = SimpleTable(self, 32, 2)
         self.initialize()
         self.grid()
         self.pss = 0
@@ -207,7 +207,7 @@ font = "Helvetica 14 bold italic")
 
         #Table for recovered files
         self.t.pack(side="right", fill="x", anchor="n")
-        self.t.set(1,0,"Carved Files (First 15)") 
+        self.t.set(1,0,"Carved Files (First 30 Files)") 
         self.t.set(1,1,"MD5 Hash") 
 
 
@@ -323,15 +323,16 @@ font = "Helvetica 14 bold italic")
     def updatefiletable(self):
         count = 2
         for key,value in self.md5list.iteritems():
-            y = key.replace(self.output_path,"")
-            self.t.set(count,0,y)
+            y = key.replace(self.output_path+"/","")
+            real_count = count - 1
+            self.t.set(count,0,str(real_count)+ ". "+ y)
             self.t.set(count,1,value)
             count = count + 1
-            if count >= 16:
+            if count >= 32:
                 break
         self.update()
     def emptyfiletable(self):
-        for count in range(2,16):
+        for count in range(2,31):
             self.t.set(count,0,"")
             self.t.set(count,1,"")
         self.update()
