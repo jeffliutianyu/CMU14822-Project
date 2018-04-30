@@ -428,7 +428,7 @@ font = "Helvetica 14 bold italic")
                             self.image_processing[1] = byte
                             self.percentage.set("Progress: " + str(self.allocating_queue[0]) + "% processed, " + str(self.allocating_queue[1]) + " MB carved")
                             self.update()
-                            if percentage > 99.9:
+                            if percentage > 97.0:
                                 break
                     elif "Allocating work queues" in result:
                         percentage = float(result.splitlines()[0].split(":")[1].split("%")[0].strip())
