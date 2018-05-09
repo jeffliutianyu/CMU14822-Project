@@ -242,8 +242,11 @@ font = "Helvetica 14 bold italic")
             if len(self.conf_filename) == 0:
                 tkMessageBox.showerror("Error", "No conf file selected!")
                 self.file_type.set("Conf file selected:  None")
+                return
             else:
                 self.file_type.set("Conf file selected:  " + self.conf_filename)
+                self.updatecommands()
+                return
         else:
             self.get_conf_filename()
             self.file_type.set("Conf file selected:  " + self.conf_filename)
