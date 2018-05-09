@@ -9,5 +9,7 @@ Python Packages to install:
 
 To run the GUI, type following in your terminal:
 $ git clone https://github.com/jeffliutianyu/CMU14822-Project.git
+
 $ cd CMU14822-Project
+
 $ python main.py
